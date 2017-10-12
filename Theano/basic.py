@@ -5,8 +5,8 @@ from theano import function
 from theano import pp
 from theano import shared
 
-x = T.dscalar('fuck')
-y = T.dscalar('suck')
+x = T.dscalar('x')
+y = T.dscalar('y')
 
 z1 = x - y
 z2 = x + y
