@@ -19,51 +19,57 @@ for item in Data:
     Train_Data.append(DataPoint)
     Train_Label.append( int(item.split("\t")[2]) )
 
-Train_Data = np.array(Train_Data)
-Train_Label = np.array(Train_Label)
+
+#print Train_Data
+#print Train_Label
 
 # Defining Variables....Note you have to mention trainable = True in W
 # Else it wont know which varible is to be updated while minimising the loss function
 
-X = tf.get_variable( initializer= tf.zeros_initializer(), shape = (10,2), dtype = 'float32', name= "X")
-Y = tf.get_variable( initializer= tf.zeros_initializer(), shape = (10), dtype='int32', name = "Y" )
-W = tf.get_variable( initializer= tf.constant( [[1.9,2.7]] ), dtype='float32', trainable=True, name = "W" )
+X = tf.get_variable( initializer= tf.constant( Train_Data ), dtype = 'float32', name= "X")
+Y = tf.get_variable( initializer= tf.constant( Train_Label ), dtype='int32', name = "Y" )
+W = tf.get_variable( initializer= tf.constant( [[1.0,1.0]] ), dtype='float32', trainable=True, name = "W" )
 
 # Sigmoid Function
 Dot_pdt = tf.matmul( X, tf.transpose(W) )
 Sigmoid = tf.get_variable( initializer= 1/( 1 + tf.exp(-Dot_pdt)), name = "mu" )
 
 # Loss Function
-Loss_fn = tf.get_variable( initializer = tf.reduce_sum( tf.to_float(Y)*tf.log(Sigmoid) + (1-tf.to_float(Y))*tf.log(1-Sigmoid) ), name="loss" )
+Loss_fn = tf.get_variable( initializer = tf.reduce_mean( tf.to_float(Y)*tf.log(Sigmoid) + (1-tf.to_float(Y))*tf.log(1-Sigmoid) ), name="loss" )
 
 # Training
 optimiser = tf.train.GradientDescentOptimizer(learning_rate=1.1).minimize(Loss_fn)
 
 # Evaluating
-sess = tf.Session()
+with tf.Session() as sess:
 
-print sess.run(tf.shape(X))
-print sess.run(tf.shape(W))
-print sess.run(tf.shape(Dot_pdt))
-print "\n"
+    writer = tf.summary.FileWriter('/home/divyat/Desktop/Workspace/Machine Learning/TensorFlow/Degub', graph=tf.get_default_graph())
 
-sess.run(X.initializer)
-sess.run(X)
+    sess.run(X.initializer)
+    print sess.run(X)
 
-sess.run(W.initializer)
-sess.run(W)
+    sess.run(Y.initializer)
+    print sess.run(Y)
 
-sess.run(Dot_pdt)
+    sess.run(W.initializer)
+    print sess.run(W)
 
-sess.run(Sigmoid.initializer)
-sess.run(Sigmoid)
+    sess.run(Dot_pdt)
 
-sess.run(Loss_fn.initializer)
-sess.run(Loss_fn)
+    sess.run(Sigmoid.initializer)
+    print sess.run(Sigmoid)
 
-for _ in range(1000):
-    sess.run(optimiser, feed_dict={X: Train_Data, Y: Train_Label})
-    print sess.run(W), "\n"
-    print sess.run(Loss_fn), "\n"
+    sess.run(Loss_fn.initializer)
+    print sess.run(Loss_fn)
 
-sess.close()
+    #print sess.run(tf.to_float(Y)*tf.log(Sigmoid) + (1-tf.to_float(Y))*tf.log(1-Sigmoid))
+
+    for _ in range(1000):
+        print sess.run(optimiser, feed_dict={X: Train_Data, Y: Train_Label})
+        print sess.run(W), "\n"
+        print sess.run(Loss_fn), "\n"
+
+    print sess.run(Loss_fn)
+    print sess.run(Sigmoid)
+
+#writer.close()
